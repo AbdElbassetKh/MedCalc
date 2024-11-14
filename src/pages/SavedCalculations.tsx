@@ -1,47 +1,81 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, AsyncStorage } from 'react-native';
 
 const SavedCalculations: React.FC = () => {
-  // In a real app, you'd fetch saved calculations from a database or local storage
-  const savedCalculations = [
-    { id: 1, medication: 'Ibuprofen', dosage: '400 mg', date: '2023-04-15' },
-    { id: 2, medication: 'Amoxicillin', dosage: '500 mg', date: '2023-04-14' },
-  ];
+  const [savedCalculations, setSavedCalculations] = useState([]);
+
+  useEffect(() => {
+    const fetchSavedCalculations = async () => {
+      try {
+        const savedData = await AsyncStorage.getItem('savedCalculations');
+        if (savedData) {
+          setSavedCalculations(JSON.parse(savedData));
+        }
+      } catch (error) {
+        console.error('Failed to load saved calculations', error);
+      }
+    };
+
+    fetchSavedCalculations();
+  }, []);
 
   return (
-    <div>
-      <h2 className="text-3xl font-bold mb-6">Saved Calculations</h2>
+    <View style={styles.container}>
+      <Text style={styles.title}>Saved Calculations</Text>
       {savedCalculations.length > 0 ? (
-        <div className="bg-white shadow-md rounded-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Medication
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Dosage
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {savedCalculations.map((calc) => (
-                <tr key={calc.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">{calc.medication}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{calc.dosage}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{calc.date}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <View style={styles.listContainer}>
+          {savedCalculations.map((calc) => (
+            <View key={calc.id} style={styles.row}>
+              <Text style={styles.cell}>{calc.medication}</Text>
+              <Text style={styles.cell}>{calc.dosage}</Text>
+              <Text style={styles.cell}>{calc.date}</Text>
+            </View>
+          ))}
+        </View>
       ) : (
-        <p className="text-center text-gray-500">No saved calculations yet.</p>
+        <Text style={styles.noDataText}>No saved calculations yet.</Text>
       )}
-    </div>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#f3f4f6',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  listContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  cell: {
+    fontSize: 16,
+    color: '#374151',
+  },
+  noDataText: {
+    textAlign: 'center',
+    color: '#9ca3af',
+  },
+});
 
 export default SavedCalculations;
