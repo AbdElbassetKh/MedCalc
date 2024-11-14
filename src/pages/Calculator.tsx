@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Save } from 'lucide-react';
+import { calculateDosage, PatientData, MedicationInfo } from '../utils/dosageCalculator';
 
 interface PatientData {
   weight: number;
@@ -42,20 +43,8 @@ const Calculator: React.FC = () => {
   const calculateDosage = () => {
     // This is a simplified calculation. In a real-world scenario, you'd need more complex logic
     // and potentially integration with a medication database for accurate dosing.
-    const baseDosage = medicationInfo.dosage * (patientData.weight / 70);
-    let adjustedDosage = baseDosage;
-
-    // Age adjustment (simplified)
-    if (patientData.age > 65) {
-      adjustedDosage *= 0.8;
-    }
-
-    // Renal function adjustment (simplified)
-    if (patientData.renalFunction < 60) {
-      adjustedDosage *= 0.7;
-    }
-
-    setCalculatedDosage(`${adjustedDosage.toFixed(2)} ${medicationInfo.unit}`);
+    const dosage = calculateDosage(patientData, medicationInfo);
+    setCalculatedDosage(dosage);
     toast.success('Dosage calculated successfully!');
   };
 
